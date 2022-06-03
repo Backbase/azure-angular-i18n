@@ -69,7 +69,7 @@ Following is how Angular CLI creates the distribution package for a multi-locale
 
 ```
 - dist
-  - i18n-s3
+  - azure-angular-i18n
     - en
       - index.html
       - favicon.ico
