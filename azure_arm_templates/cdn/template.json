@@ -1,0 +1,378 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "profiles_angular_i18n_demo_name": {
+            "defaultValue": "angular-i18n-demo",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Cdn/profiles",
+            "apiVersion": "2021-06-01",
+            "name": "[parameters('profiles_angular_i18n_demo_name')]",
+            "location": "Global",
+            "sku": {
+                "name": "Standard_Microsoft"
+            },
+            "kind": "cdn",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/endpoints",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_i18n_demo_name'), '/', parameters('profiles_angular_i18n_demo_name'))]",
+            "location": "Global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_i18n_demo_name'))]"
+            ],
+            "properties": {
+                "originHostHeader": "angulardemoapps.blob.core.windows.net",
+                "contentTypesToCompress": [
+                    "application/eot",
+                    "application/font",
+                    "application/font-sfnt",
+                    "application/javascript",
+                    "application/json",
+                    "application/opentype",
+                    "application/otf",
+                    "application/pkcs7-mime",
+                    "application/truetype",
+                    "application/ttf",
+                    "application/vnd.ms-fontobject",
+                    "application/xhtml+xml",
+                    "application/xml",
+                    "application/xml+rss",
+                    "application/x-font-opentype",
+                    "application/x-font-truetype",
+                    "application/x-font-ttf",
+                    "application/x-httpd-cgi",
+                    "application/x-javascript",
+                    "application/x-mpegurl",
+                    "application/x-opentype",
+                    "application/x-otf",
+                    "application/x-perl",
+                    "application/x-ttf",
+                    "font/eot",
+                    "font/ttf",
+                    "font/otf",
+                    "font/opentype",
+                    "image/svg+xml",
+                    "text/css",
+                    "text/csv",
+                    "text/html",
+                    "text/javascript",
+                    "text/js",
+                    "text/plain",
+                    "text/richtext",
+                    "text/tab-separated-values",
+                    "text/xml",
+                    "text/x-script",
+                    "text/x-component",
+                    "text/x-java-source"
+                ],
+                "isCompressionEnabled": true,
+                "isHttpAllowed": true,
+                "isHttpsAllowed": true,
+                "queryStringCachingBehavior": "IgnoreQueryString",
+                "origins": [
+                    {
+                        "name": "angulardemoapps-blob-core-windows-net",
+                        "properties": {
+                            "hostName": "angulardemoapps.blob.core.windows.net",
+                            "httpPort": 80,
+                            "httpsPort": 443,
+                            "originHostHeader": "angulardemoapps.blob.core.windows.net",
+                            "priority": 1,
+                            "weight": 1000,
+                            "enabled": true
+                        }
+                    }
+                ],
+                "originGroups": [],
+                "geoFilters": [],
+                "deliveryPolicy": {
+                    "rules": [
+                        {
+                            "name": "defaultApplication",
+                            "order": 1,
+                            "conditions": [
+                                {
+                                    "name": "UrlPath",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                                        "operator": "Any",
+                                        "negateCondition": false,
+                                        "matchValues": [],
+                                        "transforms": []
+                                    }
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "name": "UrlRewrite",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                                        "sourcePattern": "/",
+                                        "destination": "/en-locale/index.html",
+                                        "preserveUnmatchedPath": false
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "defaultEN",
+                            "order": 2,
+                            "conditions": [
+                                {
+                                    "name": "UrlPath",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                                        "operator": "Equal",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "/"
+                                        ],
+                                        "transforms": []
+                                    }
+                                },
+                                {
+                                    "name": "Cookies",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleCookiesConditionParameters",
+                                        "operator": "Equal",
+                                        "selector": "locale",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "en"
+                                        ],
+                                        "transforms": []
+                                    }
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "name": "UrlRewrite",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                                        "sourcePattern": "/",
+                                        "destination": "/en-locale/index.html",
+                                        "preserveUnmatchedPath": true
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "defaultNL",
+                            "order": 3,
+                            "conditions": [
+                                {
+                                    "name": "UrlPath",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                                        "operator": "Equal",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "/"
+                                        ],
+                                        "transforms": []
+                                    }
+                                },
+                                {
+                                    "name": "Cookies",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleCookiesConditionParameters",
+                                        "operator": "Equal",
+                                        "selector": "locale",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "nl"
+                                        ],
+                                        "transforms": []
+                                    }
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "name": "UrlRewrite",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                                        "sourcePattern": "/",
+                                        "destination": "/nl-locale/index.html",
+                                        "preserveUnmatchedPath": true
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "deepLinkingEN",
+                            "order": 4,
+                            "conditions": [
+                                {
+                                    "name": "UrlPath",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                                        "operator": "BeginsWith",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "/en"
+                                        ],
+                                        "transforms": []
+                                    }
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "name": "UrlRewrite",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                                        "sourcePattern": "/",
+                                        "destination": "/en-locale/index.html",
+                                        "preserveUnmatchedPath": false
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "staticsPathEN",
+                            "order": 5,
+                            "conditions": [
+                                {
+                                    "name": "UrlFileExtension",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlFileExtensionMatchConditionParameters",
+                                        "operator": "Equal",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "css",
+                                            "js",
+                                            "ico",
+                                            "svg"
+                                        ],
+                                        "transforms": []
+                                    }
+                                },
+                                {
+                                    "name": "UrlPath",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                                        "operator": "BeginsWith",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "/en"
+                                        ],
+                                        "transforms": []
+                                    }
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "name": "UrlRewrite",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                                        "sourcePattern": "/en",
+                                        "destination": "/en-locale",
+                                        "preserveUnmatchedPath": true
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "deepLinkingNL",
+                            "order": 6,
+                            "conditions": [
+                                {
+                                    "name": "UrlPath",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                                        "operator": "BeginsWith",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "/nl"
+                                        ],
+                                        "transforms": []
+                                    }
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "name": "UrlRewrite",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                                        "sourcePattern": "/",
+                                        "destination": "/nl-locale/index.html",
+                                        "preserveUnmatchedPath": false
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "staticsPathNL",
+                            "order": 7,
+                            "conditions": [
+                                {
+                                    "name": "UrlFileExtension",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlFileExtensionMatchConditionParameters",
+                                        "operator": "Equal",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "css",
+                                            "js",
+                                            "ico",
+                                            "svg"
+                                        ],
+                                        "transforms": []
+                                    }
+                                },
+                                {
+                                    "name": "UrlPath",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                                        "operator": "BeginsWith",
+                                        "negateCondition": false,
+                                        "matchValues": [
+                                            "/nl"
+                                        ],
+                                        "transforms": []
+                                    }
+                                }
+                            ],
+                            "actions": [
+                                {
+                                    "name": "UrlRewrite",
+                                    "parameters": {
+                                        "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                                        "sourcePattern": "/nl",
+                                        "destination": "/nl-locale",
+                                        "preserveUnmatchedPath": true
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/endpoints/origins",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_i18n_demo_name'), '/', parameters('profiles_angular_i18n_demo_name'), '/angulardemoapps-blob-core-windows-net')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/endpoints', parameters('profiles_angular_i18n_demo_name'), parameters('profiles_angular_i18n_demo_name'))]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_i18n_demo_name'))]"
+            ],
+            "properties": {
+                "hostName": "angulardemoapps.blob.core.windows.net",
+                "httpPort": 80,
+                "httpsPort": 443,
+                "originHostHeader": "angulardemoapps.blob.core.windows.net",
+                "priority": 1,
+                "weight": 1000,
+                "enabled": true
+            }
+        }
+    ]
+}

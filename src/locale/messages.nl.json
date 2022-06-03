@@ -1,0 +1,8 @@
+{
+  "locale": "nl",
+  "translations": {
+    "planetDetailsHeading": "Hieronder staan ​​planeetdetails",
+    "listOfPlanets": "Lijst van planeten",
+    "errorMessage": "Er is iets fout gegaan. Het gevraagde pad bestaat niet"
+  }
+}

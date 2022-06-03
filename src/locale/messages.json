@@ -1,0 +1,8 @@
+{
+  "locale": "en",
+  "translations": {
+    "planetDetailsHeading": "Below are planet details",
+    "listOfPlanets": "List of planets",
+    "errorMessage": "Something went wrong. The requested path doesn't exist"
+  }
+}
