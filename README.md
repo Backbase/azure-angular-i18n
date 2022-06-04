@@ -93,19 +93,19 @@ Following is how Angular CLI creates the distribution package for a multi-locale
 2. Create a [Resource Group](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal). This resource group will be used to club our services together.
 
     ```bash
-    az group create --location westeurope --name demo
+    az group create --location westeurope --name azure-angular-i18n
     ```
 
 3. Create a Storage Account and Blob Containers using the provided ARM template
 
     ```bash
-    az deployment group create --resource-group demo --template-file azure_arm_templates/storage-account/template.json
+    az deployment group create --resource-group azure-angular-i18n --template-file azure_arm_templates/storage-account/template.json
     ```
 
 4. Create a Azure CDN Standard from Microsoft (classic)
 
     ```bash
-    az deployment group create --resource-group demo --template-file azure_arm_templates/cdn/template.json
+    az deployment group create --resource-group azure-angular-i18n --template-file azure_arm_templates/cdn/template.json
     ```
 
 5. Upload the distribution packages for `nl` and `en` locale in their respective containers.
@@ -117,7 +117,7 @@ Following is how Angular CLI creates the distribution package for a multi-locale
     az storage blob upload-batch --account-name angulardemoapps -d nl-locale -s dist/azure-angular-i18n/nl/ --overwrite
 
     # en
-    az storage blob upload-batch --account-name angulardemoapps -d en-locale -s -s dist/azure-angular-i18n/en/ --overwrite
+    az storage blob upload-batch --account-name angulardemoapps -d en-locale -s dist/azure-angular-i18n/en/ --overwrite
     ```
 
 6. Set the `cache-control` property for the `index.html` file to `no-store` as we don't want our CDN to cache the HTML file. This is because the CDN would otherwise cache `en` **or** `nl` content either the path with context root set as `/` and would serve the html file incorrectly.
