@@ -1,0 +1,521 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "profiles_angular_front_door_name": {
+            "defaultValue": "angular-front-door",
+            "type": "String"
+        },
+        "frontdoorwebapplicationfirewallpolicies_demowaf_externalid": {
+            "defaultValue": "/subscriptions/b428929d-d056-47f5-9ce9-32b58197d18d/resourceGroups/azure-angular-i18n/providers/Microsoft.Network/frontdoorwebapplicationfirewallpolicies/demowaf",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Cdn/profiles",
+            "apiVersion": "2021-06-01",
+            "name": "[parameters('profiles_angular_front_door_name')]",
+            "location": "Global",
+            "sku": {
+                "name": "Standard_AzureFrontDoor"
+            },
+            "kind": "frontdoor",
+            "properties": {
+                "originResponseTimeoutSeconds": 60
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/afdendpoints",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angular-i18n-front-door')]",
+            "location": "Global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "enabledState": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/origingroups",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/default-origin-group')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "loadBalancingSettings": {
+                    "sampleSize": 4,
+                    "successfulSamplesRequired": 3,
+                    "additionalLatencyInMilliseconds": 50
+                },
+                "healthProbeSettings": {
+                    "probePath": "/",
+                    "probeRequestType": "HEAD",
+                    "probeProtocol": "Http",
+                    "probeIntervalInSeconds": 100
+                },
+                "sessionAffinityState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/origingroups/origins",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/default-origin-group/default-origin')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_angular_front_door_name'), 'default-origin-group')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "hostName": "angulardemoapps.blob.core.windows.net",
+                "httpPort": 80,
+                "httpsPort": 443,
+                "originHostHeader": "angulardemoapps.blob.core.windows.net",
+                "priority": 1,
+                "weight": 1000,
+                "enabledState": "Enabled",
+                "enforceCertificateNameCheck": true
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets/rules",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset/deepLinkingEN')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "order": 3,
+                "conditions": [
+                    {
+                        "name": "UrlPath",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "BeginsWith",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "/en"
+                            ],
+                            "transforms": []
+                        }
+                    }
+                ],
+                "actions": [
+                    {
+                        "name": "UrlRewrite",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "/",
+                            "destination": "/en-locale/index.html",
+                            "preserveUnmatchedPath": false
+                        }
+                    }
+                ],
+                "matchProcessingBehavior": "Continue"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets/rules",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset/deepLinkingNL')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "order": 5,
+                "conditions": [
+                    {
+                        "name": "UrlPath",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "BeginsWith",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "/nl"
+                            ],
+                            "transforms": []
+                        }
+                    }
+                ],
+                "actions": [
+                    {
+                        "name": "UrlRewrite",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "/",
+                            "destination": "/nl-locale/index.html",
+                            "preserveUnmatchedPath": false
+                        }
+                    }
+                ],
+                "matchProcessingBehavior": "Continue"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets/rules",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset/defaultApplication')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "order": 0,
+                "conditions": [
+                    {
+                        "name": "UrlPath",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "Any",
+                            "negateCondition": false,
+                            "matchValues": [],
+                            "transforms": []
+                        }
+                    }
+                ],
+                "actions": [
+                    {
+                        "name": "UrlRewrite",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "/",
+                            "destination": "/en-locale/index.html",
+                            "preserveUnmatchedPath": false
+                        }
+                    }
+                ],
+                "matchProcessingBehavior": "Continue"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets/rules",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset/defaultEN')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "order": 1,
+                "conditions": [
+                    {
+                        "name": "UrlPath",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "Equal",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "/"
+                            ],
+                            "transforms": []
+                        }
+                    },
+                    {
+                        "name": "Cookies",
+                        "parameters": {
+                            "typeName": "DeliveryRuleCookiesConditionParameters",
+                            "operator": "Equal",
+                            "selector": "locale",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "en"
+                            ],
+                            "transforms": []
+                        }
+                    }
+                ],
+                "actions": [
+                    {
+                        "name": "UrlRewrite",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "/",
+                            "destination": "/en-locale/index.html",
+                            "preserveUnmatchedPath": true
+                        }
+                    }
+                ],
+                "matchProcessingBehavior": "Continue"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets/rules",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset/defaultNL')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "order": 2,
+                "conditions": [
+                    {
+                        "name": "UrlPath",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "Equal",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "/"
+                            ],
+                            "transforms": []
+                        }
+                    },
+                    {
+                        "name": "Cookies",
+                        "parameters": {
+                            "typeName": "DeliveryRuleCookiesConditionParameters",
+                            "operator": "Equal",
+                            "selector": "locale",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "nl"
+                            ],
+                            "transforms": []
+                        }
+                    }
+                ],
+                "actions": [
+                    {
+                        "name": "UrlRewrite",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "/",
+                            "destination": "/nl-locale/index.html",
+                            "preserveUnmatchedPath": true
+                        }
+                    }
+                ],
+                "matchProcessingBehavior": "Continue"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets/rules",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset/staticsPathEN')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "order": 4,
+                "conditions": [
+                    {
+                        "name": "UrlFileExtension",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlFileExtensionMatchConditionParameters",
+                            "operator": "Equal",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "css",
+                                "js",
+                                "svg",
+                                "ico"
+                            ],
+                            "transforms": []
+                        }
+                    },
+                    {
+                        "name": "UrlPath",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "BeginsWith",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "/en"
+                            ],
+                            "transforms": []
+                        }
+                    }
+                ],
+                "actions": [
+                    {
+                        "name": "UrlRewrite",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "/en",
+                            "destination": "/en-locale",
+                            "preserveUnmatchedPath": true
+                        }
+                    }
+                ],
+                "matchProcessingBehavior": "Continue"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/rulesets/rules",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angulari18ndemoruleset/staticsPathNL')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]"
+            ],
+            "properties": {
+                "order": 6,
+                "conditions": [
+                    {
+                        "name": "UrlFileExtension",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlFileExtensionMatchConditionParameters",
+                            "operator": "Equal",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "css",
+                                "js",
+                                "svg",
+                                "ico"
+                            ],
+                            "transforms": []
+                        }
+                    },
+                    {
+                        "name": "UrlPath",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlPathMatchConditionParameters",
+                            "operator": "BeginsWith",
+                            "negateCondition": false,
+                            "matchValues": [
+                                "/nl"
+                            ],
+                            "transforms": []
+                        }
+                    }
+                ],
+                "actions": [
+                    {
+                        "name": "UrlRewrite",
+                        "parameters": {
+                            "typeName": "DeliveryRuleUrlRewriteActionParameters",
+                            "sourcePattern": "/nl",
+                            "destination": "/nl-locale",
+                            "preserveUnmatchedPath": true
+                        }
+                    }
+                ],
+                "matchProcessingBehavior": "Continue"
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/securitypolicies",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/demowaf-22ecbfce')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]",
+                "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_angular_front_door_name'), 'angular-i18n-front-door')]"
+            ],
+            "properties": {
+                "parameters": {
+                    "wafPolicy": {
+                        "id": "[parameters('frontdoorwebapplicationfirewallpolicies_demowaf_externalid')]"
+                    },
+                    "associations": [
+                        {
+                            "domains": [
+                                {
+                                    "id": "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_angular_front_door_name'), 'angular-i18n-front-door')]"
+                                }
+                            ],
+                            "patternsToMatch": [
+                                "/*"
+                            ]
+                        }
+                    ],
+                    "type": "WebApplicationFirewall"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles/afdendpoints/routes",
+            "apiVersion": "2021-06-01",
+            "name": "[concat(parameters('profiles_angular_front_door_name'), '/angular-i18n-front-door/default-route')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_angular_front_door_name'), 'angular-i18n-front-door')]",
+                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_angular_front_door_name'))]",
+                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_angular_front_door_name'), 'default-origin-group')]",
+                "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]"
+            ],
+            "properties": {
+                "cacheConfiguration": {
+                    "compressionSettings": {
+                        "isCompressionEnabled": true,
+                        "contentTypesToCompress": [
+                            "application/eot",
+                            "application/font",
+                            "application/font-sfnt",
+                            "application/javascript",
+                            "application/json",
+                            "application/opentype",
+                            "application/otf",
+                            "application/pkcs7-mime",
+                            "application/truetype",
+                            "application/ttf",
+                            "application/vnd.ms-fontobject",
+                            "application/xhtml+xml",
+                            "application/xml",
+                            "application/xml+rss",
+                            "application/x-font-opentype",
+                            "application/x-font-truetype",
+                            "application/x-font-ttf",
+                            "application/x-httpd-cgi",
+                            "application/x-javascript",
+                            "application/x-mpegurl",
+                            "application/x-opentype",
+                            "application/x-otf",
+                            "application/x-perl",
+                            "application/x-ttf",
+                            "font/eot",
+                            "font/ttf",
+                            "font/otf",
+                            "font/opentype",
+                            "image/svg+xml",
+                            "text/css",
+                            "text/csv",
+                            "text/html",
+                            "text/javascript",
+                            "text/js",
+                            "text/plain",
+                            "text/richtext",
+                            "text/tab-separated-values",
+                            "text/xml",
+                            "text/x-script",
+                            "text/x-component",
+                            "text/x-java-source"
+                        ]
+                    },
+                    "queryStringCachingBehavior": "IgnoreQueryString"
+                },
+                "customDomains": [],
+                "originGroup": {
+                    "id": "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_angular_front_door_name'), 'default-origin-group')]"
+                },
+                "ruleSets": [
+                    {
+                        "id": "[resourceId('Microsoft.Cdn/profiles/rulesets', parameters('profiles_angular_front_door_name'), 'angulari18ndemoruleset')]"
+                    }
+                ],
+                "supportedProtocols": [
+                    "Https"
+                ],
+                "patternsToMatch": [
+                    "/*"
+                ],
+                "forwardingProtocol": "MatchRequest",
+                "linkToDefaultDomain": "Enabled",
+                "httpsRedirect": "Enabled",
+                "enabledState": "Enabled"
+            }
+        }
+    ]
+}

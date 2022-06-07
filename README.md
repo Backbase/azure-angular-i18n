@@ -145,3 +145,18 @@ Rules defined for this project can be seen in the resource template(`azure_arm_t
 ## Demo
 
 The app can be reached at https://angular-i18n-demo.azureedge.net. It has two Angular routes (`/list` and `/details`).
+
+## Azure Front Door
+
+[Azure Front Door](https://docs.microsoft.com/en-us/azure/frontdoor/front-door-overview) is Microsoft’s modern cloud Content Delivery Network (CDN) that provides fast, reliable, and secure access between your users and your applications’ static and dynamic web content across the globe. Azure Front Door delivers your content using the Microsoft’s global edge network with hundreds of global and local POPs distributed around the world close to both your enterprise and consumer end users.
+
+It provides certain benefits over Azure CDN For Microsoft such as:
+- Free, autorotation managed SSL certificates
+- Layer 3-4 DDoS protection
+- Attached WAF policies
+
+Creating a Front Door resource is similar to creating a CDN resource. Execute below instead of step 4 above to create a Front Door profile.
+
+```bash
+az deployment group create --resource-group azure-angular-i18n --template-file azure_arm_templates/front-door/template.json
+```
