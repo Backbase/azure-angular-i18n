@@ -61,7 +61,7 @@ Read [here](https://docs.microsoft.com/en-us/azure/cdn/cdn-overview) for more in
 
 Following instructions provided by [Angular docs](https://angular.io/guide/i18n-common-overview), the app is prepared for multiple languages, `en` and `nl`. The translation files can be found at `src/locale/`.
 
-API_ROOT for the app is uses `https://swapi.py4e.com` for local development while we make use of a Lambda function serving us static data regarding list and details of planets. Reason why we use the Lambda function was to enable CORS configuration between the function and our app which will be deployed below.
+API_ROOT for the app is uses `https://swapi.py4e.com` for local development while we make use of an Azure Function serving us **static** response regarding list and details of planets in a simulated production environment. Enabling CORS on the Azure Function is a pre-requisite to allow the Angular App to communicate with it.
 
 ### Production builds per locale
 
