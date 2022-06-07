@@ -2,6 +2,22 @@
 
 This repository demonstrates how we can deploy a multi-language Angular app to Azure using services like Blob Storage and Azure CDN (from Microsoft). The project is similar to the one demonstrated [here](https://github.com/yash-kapila/angular-i18n-s3) using AWS services instead.
 
+## Table of Contents
+
+  - [Prerequisites](#prerequisites)
+  - [Static Apps Deployment Strategies](#static-apps-deployment-strategies)
+    * [Using a web server](#using-a-web-server)
+    * [Azure Blob Storage & Azure CDN](#azure-blob-storage--azure-cdn)
+      * [Azure Blob Storage](#azure-blob-storage)
+      * [Azure CDN](#azure-cdn)
+  - [Setup](#setup)
+    * [Project Setup](#project-setup)
+    * [Production builds per locale](#production-builds-per-locale)
+    * [Steps](#steps)
+    * [Locale Negotiation](#locale-negotiation)
+  - [Demo](#demo)
+  - [Azure Front Door](#azure-front-door)
+
 ## Prerequisites
 
 1. Create a Microsoft Azure free-tire account following instructions [here](https://azure.microsoft.com/en-us/free/).
